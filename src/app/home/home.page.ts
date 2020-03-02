@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { DadosService } from '../servicos/dados.service';
 import { Router } from '@angular/router';
+import { PokedexApiService } from '../servicos/pokedex-api.service';
 
 @Component({
   selector: 'app-home',
@@ -19,10 +20,19 @@ export class HomePage {
 
   public listaFiltrada = [];
 
+  public listaPokemonsApi: any;
+
   // tudo que vai dentro do contructor é carregado no inicio da pagina, o que vai dentro dos parenteses e tudo que ele vai buscar
   // fora e guarda dentro da variavel criada
-  constructor(public dadosService: DadosService, public router: Router) {
-    this.resetarLista();
+  constructor(public dadosService: DadosService, public router: Router, public pokeApi: PokedexApiService) {
+    this.buscaPokemonApi();
+  }
+
+  public buscaPokemonApi(offset = 0){
+    this.pokeApi.listarPokemons(offset).subscribe(dados => {
+      this.listaPokemonsApi = dados['result'];
+      console.log(this.listaPokemonsApi);
+    });
   }
 
   // funcoes
