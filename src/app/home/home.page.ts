@@ -20,24 +20,45 @@ export class HomePage {
 
   public listaFiltrada = [];
 
-  public listaPokemonsApi: any;
+  public listaPokemonsApi = [];
+  public offsetGeral = 0;
+  public limitGeral = 10;
+  public paginaAtual = 0;
+  public totalPokemons = 0;
 
-  // tudo que vai dentro do contructor é carregado no inicio da pagina, o que vai dentro dos parenteses e tudo que ele vai buscar
-  // fora e guarda dentro da variavel criada
+  // tudo que vai dentro do contructor é carregado no inicio da pagina, o que vai dentro dos parenteses e tudo que ele vai buscar fora e guarda dentro da variavel criada
   constructor(public dadosService: DadosService, public router: Router, public pokeApi: PokedexApiService) {
-    this.buscaPokemonApi();
+    //Busca os pokemons na Api quando abre a pagina
+    this.buscaPokemonApi(this.offsetGeral, this.limitGeral);
   }
 
-  public buscaPokemonApi(offset = 0){
-    this.pokeApi.listarPokemons(offset).subscribe(dados => {
-      this.listaPokemonsApi = dados['result'];
-      console.log(this.listaPokemonsApi);
+  public buscaPokemonApi(offset, limit){
+    this.pokeApi.listarPokemons(offset, limit).subscribe(dados => {
+
+      console.log(dados)
+
+      //Pega o total de pokemons
+      this.totalPokemons = dados['count'];
+      
+      //Pega somente a lista com pokemons
+      let listaApi = dados['result'];
+
+      for(let item of listaApi){
+        //Busca todos os dados do pokemon usando a url
+        this.pokeApi.buscarPokemonUrl(item.url).subscribe(dadosPokemon =>{
+          //adiciona os dados do pokemon no final da lista
+          this.listaPokemonsApi.push(dadosPokemon);
+        })
+      }
+      this.resetarLista();
     });
   }
 
   // funcoes
   public resetarLista () {
-    this.listaFiltrada = this.listaPokemons;
+    //this.listaFiltrada = this.listaPokemons;
+
+    this.listaFiltrada = this.listaPokemonsApi;
   }
 
   public abrirDadosPokemon(pokemon: any){
